@@ -4,6 +4,7 @@ Logspout-S3 is a container app that listens on the Docker bus and streams
 application logs to Amazon S3 at some FLUSH_INTERVAL. It's built as an adapter
 to github.com/gliderlabs/logspout.
 
+
 ## Usage
 
 ```shell
@@ -25,6 +26,17 @@ for logspout-s3 which will stream those logs.
 If you'd like to query the logs, check out https://aws.amazon.com/athena/ which
 uses S3 as a backend for any kind of log data to query/visualize.
 
-# LICENSE
+
+## Image run options
+
+The container app supports a few environment variables as options:
+
+* `AWS_ACCESS_KEY` : your AWS access key
+* `AWS_SECRET_KEY` : your AWS secret key
+* `AWS_REGION` : the AWS region where your S3 bucket resides
+* `FLUSH_INTERVAL` : interval that collected logs are then uploaded to S3, in seconds (default: 120 seconds)
+
+
+## LICENSE
 
 MIT
