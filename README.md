@@ -1,8 +1,8 @@
 # Logspout-S3
 
 Logspout-S3 is a container app that listens on the Docker bus and streams
-application logs to Amazon S3 at some FLUSH_INTERVAL. It's built as an adapter
-to github.com/gliderlabs/logspout.
+application logs to Amazon S3 at some FLUSH_INTERVAL or MAX_SINK_SIZE_MB. It's
+built as an adapter to github.com/gliderlabs/logspout.
 
 
 ## Usage
