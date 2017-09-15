@@ -144,17 +144,14 @@ func (a *S3Adapter) sendLogs() error {
 		return nil
 	}
 
-	// Copy entries from the sink and clear out the sink
-	entries := make([]logEntry, len(a.logSink.entries))
-	copy(entries, a.logSink.entries)
-	a.logSink.entries = a.logSink.entries[:0]
-	a.logSink.Unlock()
-
-	// Container :: Message index
+	// Create container index from sink entries
 	logs := map[string][]string{}
-	for _, e := range entries {
+	for _, e := range a.logSink.entries {
 		logs[e.Container] = append(logs[e.Container], e.Message)
 	}
+
+	a.logSink.entries = a.logSink.entries[:0]
+	a.logSink.Unlock()
 
 	// computed key name becomes: /{storePath}/{containerName}/{unix-ts}-{ulid}.log
 	t := time.Now().Unix()
