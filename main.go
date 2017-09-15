@@ -15,6 +15,7 @@ func main() {
 	os.Setenv("AWS_ACCESS_KEY", "...")
 	os.Setenv("AWS_SECRET_KEY", "...")
 	os.Setenv("AWS_REGION", "us-east-1")
+	os.Setenv("FLUSH_INTERVAL", "1") // flush after 1 second
 
 	// --
 

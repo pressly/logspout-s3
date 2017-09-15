@@ -40,6 +40,29 @@ as well, the container command where in above example its `s3://pressly-logs-tes
 accept additional paths as the folder prefix, ie. `s3://pressly-logs-test/logs`
 
 
+## Tips
+
+Setup an IAM user with the S3 policy to only write access to your logging buckets, like:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+                "s3:PutObject"
+            ],
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:s3:::pressly-logs-test",
+                "arn:aws:s3:::pressly-logs-test/*"
+            ]
+        }
+    ]
+}
+```
+
+
 ## LICENSE
 
 MIT

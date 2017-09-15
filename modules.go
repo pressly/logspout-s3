@@ -68,15 +68,7 @@ func NewS3Adapter(route *router.Route) (router.LogAdapter, error) {
 	awsConf := aws.NewConfig().WithRegion(s3Region).WithCredentials(creds)
 	conn := s3.New(session.New(), awsConf)
 
-	// Verify connection works with a simple request
-	_, err := conn.GetBucketAcl(&s3.GetBucketAclInput{
-		Bucket: aws.String(bucketID),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	s3a := &S3Adapter{
+	a := &S3Adapter{
 		route:         route,
 		bucketID:      bucketID,
 		storePath:     storePath,
@@ -86,7 +78,17 @@ func NewS3Adapter(route *router.Route) (router.LogAdapter, error) {
 		flushInterval: flushInterval,
 	}
 
-	return s3a, nil
+	// Verify connection works with a simple request
+	_, err := a.conn.PutObject(&s3.PutObjectInput{
+		Bucket:      aws.String(a.bucketID),
+		Key:         aws.String("ping"),
+		ContentType: aws.String("text/plain"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return a, nil
 }
 
 type S3Adapter struct {
@@ -121,6 +123,7 @@ func (a *S3Adapter) recorder(d time.Duration) {
 	ticker := time.NewTicker(d)
 	for {
 		select {
+
 		case entry := <-a.recordCh:
 			a.logSink.Push(entry)
 
@@ -128,6 +131,7 @@ func (a *S3Adapter) recorder(d time.Duration) {
 			// TODO: we could check error response, after X consequtive errors
 			// we can stop processing, or at least stop for some period of time.
 			go a.sendLogs()
+
 		}
 	}
 }
@@ -183,6 +187,7 @@ func (a *S3Adapter) sendLogs() error {
 
 		_, err := a.conn.PutObjectWithContext(ctx, params)
 		if err != nil {
+			// fmt.Println("sendLogs: error - ", err)
 			return err
 		}
 	}
