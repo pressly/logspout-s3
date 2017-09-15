@@ -20,11 +20,14 @@ func main() {
 	// --
 
 	bucketID := "pressly-logs-test"
-	address := bucketID //+ "/logs"
+	address := bucketID
 
 	s3a, err := NewS3Adapter(&router.Route{
 		Adapter: "s3",
 		Address: address,
+		Options: map[string]string{
+			"path": "/logs",
+		},
 	})
 	if err != nil {
 		panic(err)

@@ -19,4 +19,4 @@ docker-run-logspout:
 		--volume=/var/run/docker.sock:/var/run/docker.sock \
 		--publish=127.0.0.1:8000:80 \
 		pressly/logspout-s3 \
-		s3://pressly-logs-test
+		s3://pressly-logs-test?path=/logs

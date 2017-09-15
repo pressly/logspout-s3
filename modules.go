@@ -60,10 +60,12 @@ func NewS3Adapter(route *router.Route) (router.LogAdapter, error) {
 		}
 	}
 
-	// Parse S3 bucket and storage path from route address
-	paths := strings.Split(route.Address, "/")
-	bucketID := paths[0]
-	storePath := "/" + strings.Join(paths[1:], "/")
+	// Bucket and storage path from the logspout router
+	bucketID := route.Address
+	storePath := route.Options["path"]
+	if !strings.HasPrefix(storePath, "/") {
+		storePath = "/" + storePath
+	}
 	if !strings.HasSuffix(storePath, "/") {
 		storePath += "/"
 	}

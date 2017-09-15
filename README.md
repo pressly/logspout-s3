@@ -17,12 +17,16 @@ docker run -d --name=logspout-s3 \
 	-e 'MAX_SINK_SIZE_MB=16' \
 	--volume=/var/run/docker.sock:/var/run/docker.sock \
 	pressly/logspout-s3 \
-	s3://pressly-logs-test
+	s3://pressly-logs-test?path=/logs
 ```
 
 See the `example/` folder and Makefile to get started. It demonstrates a REST API
 service with JSON structured logging output, and also the start command
 for logspout-s3 which will stream those logs.
+
+The s3 url can be just the bucket as in `s3://bucketname` or you can provide
+the additional `path` query param which is the directory to store container logs
+as in the example usage above.
 
 If you'd like to query the logs, check out https://aws.amazon.com/athena/ which
 uses S3 as a backend for any kind of log data to query/visualize.
