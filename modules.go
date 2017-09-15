@@ -143,10 +143,8 @@ func (a *S3Adapter) sendLogs() error {
 		a.logSink.Unlock()
 		return nil
 	}
-	a.logSink.Unlock()
 
 	// Copy entries from the sink and clear out the sink
-	a.logSink.Lock()
 	entries := make([]logEntry, len(a.logSink.entries))
 	copy(entries, a.logSink.entries)
 	a.logSink.entries = a.logSink.entries[:0]
