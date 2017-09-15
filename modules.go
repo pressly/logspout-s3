@@ -51,6 +51,15 @@ func NewS3Adapter(route *router.Route) (router.LogAdapter, error) {
 		}
 	}
 
+	// Default 16MB log buffer before flushing
+	maxSinkSizeMB := 16
+	if s := os.Getenv("MAX_SINK_SIZE_MB"); s != "" {
+		i, _ := strconv.Atoi(s)
+		if i > 0 {
+			maxSinkSizeMB = i
+		}
+	}
+
 	// Parse S3 bucket and storage path from route address
 	paths := strings.Split(route.Address, "/")
 	bucketID := paths[0]
@@ -75,6 +84,7 @@ func NewS3Adapter(route *router.Route) (router.LogAdapter, error) {
 		conn:          conn,
 		recordCh:      make(chan logEntry),
 		logSink:       newLogSink(),
+		maxSinkSize:   int64(maxSinkSizeMB * 1024 * 1024),
 		flushInterval: flushInterval,
 	}
 
@@ -99,6 +109,7 @@ type S3Adapter struct {
 
 	recordCh      chan logEntry
 	logSink       *logSink
+	maxSinkSize   int64 // in bytes
 	flushInterval time.Duration
 }
 
@@ -127,6 +138,10 @@ func (a *S3Adapter) recorder(d time.Duration) {
 		case entry := <-a.recordCh:
 			a.logSink.Push(entry)
 
+			if a.logSink.numBytes >= a.maxSinkSize {
+				go a.sendLogs()
+			}
+
 		case <-ticker.C:
 			// TODO: we could check error response, after X consequtive errors
 			// we can stop processing, or at least stop for some period of time.
@@ -150,7 +165,7 @@ func (a *S3Adapter) sendLogs() error {
 		logs[e.Container] = append(logs[e.Container], e.Message)
 	}
 
-	a.logSink.entries = a.logSink.entries[:0]
+	a.logSink.Reset()
 	a.logSink.Unlock()
 
 	// computed key name becomes: /{storePath}/{containerName}/{unix-ts}-{ulid}.log
@@ -192,7 +207,8 @@ func (a *S3Adapter) sendLogs() error {
 
 type logSink struct {
 	sync.Mutex
-	entries []logEntry
+	entries  []logEntry
+	numBytes int64
 }
 
 func newLogSink() *logSink {
@@ -203,8 +219,14 @@ func newLogSink() *logSink {
 
 func (s *logSink) Push(e logEntry) {
 	s.Lock()
+	s.numBytes += int64(len(e.Message))
 	s.entries = append(s.entries, e)
 	s.Unlock()
+}
+
+func (s *logSink) Reset() {
+	s.entries = s.entries[:0]
+	s.numBytes = 0
 }
 
 func newULID() ulid.ULID {

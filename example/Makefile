@@ -15,6 +15,7 @@ docker-run-logspout:
 		-e 'AWS_SECRET_KEY=YOUR_SECRET_KEY' \
 		-e 'AWS_REGION=us-east-1' \
 		-e 'FLUSH_INTERVAL=2' \
+		-e 'MAX_SINK_SIZE_MB=1' \
 		--volume=/var/run/docker.sock:/var/run/docker.sock \
 		--publish=127.0.0.1:8000:80 \
 		pressly/logspout-s3 \

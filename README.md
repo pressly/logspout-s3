@@ -14,6 +14,7 @@ docker run -d --name=logspout-s3 \
 	-e 'AWS_SECRET_KEY=YOUR_SECRET_KEY' \
 	-e 'AWS_REGION=us-east-1' \
 	-e 'FLUSH_INTERVAL=120' \
+	-e 'MAX_SINK_SIZE_MB=16' \
 	--volume=/var/run/docker.sock:/var/run/docker.sock \
 	pressly/logspout-s3 \
 	s3://pressly-logs-test
@@ -34,7 +35,8 @@ The container app supports a few environment variables as options:
 * `AWS_ACCESS_KEY` : your AWS access key
 * `AWS_SECRET_KEY` : your AWS secret key
 * `AWS_REGION` : the AWS region where your S3 bucket resides
-* `FLUSH_INTERVAL` : interval that collected logs are then uploaded to S3, in seconds (default: 120 seconds)
+* `FLUSH_INTERVAL` : interval that collected logs are then uploaded to S3, as seconds (default: 120)
+* `MAX_SINK_SIZE_MB` : max buffer size for log collection before sending to S3, as MB (default: 16)
 
 as well, the container command where in above example its `s3://pressly-logs-test` can also
 accept additional paths as the folder prefix, ie. `s3://pressly-logs-test/logs`
