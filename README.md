@@ -36,6 +36,9 @@ The container app supports a few environment variables as options:
 * `AWS_REGION` : the AWS region where your S3 bucket resides
 * `FLUSH_INTERVAL` : interval that collected logs are then uploaded to S3, in seconds (default: 120 seconds)
 
+as well, the container command where in above example its `s3://pressly-logs-test` can also
+accept additional paths as the folder prefix, ie. `s3://pressly-logs-test/logs`
+
 
 ## LICENSE
 
